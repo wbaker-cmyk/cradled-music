@@ -131,7 +131,8 @@
             opacity: 0.5;
         }
 
-        .vinyl-container:hover {
+        .vinyl-container:hover,
+        .vinyl-container.expanded {
             height: 400px;
             width: calc(100% + 40px);
             margin-left: -20px;
@@ -148,7 +149,8 @@
             transition: all 0.5s ease;
         }
 
-        .vinyl-container:hover .vinyl-spine {
+        .vinyl-container:hover .vinyl-spine,
+        .vinyl-container.expanded .vinyl-spine {
             background: transparent;
             border-bottom: none;
         }
@@ -167,7 +169,8 @@
             border-bottom: 0.5px solid #e0e0e0;
         }
 
-        .vinyl-container:hover .spine-text {
+        .vinyl-container:hover .spine-text,
+        .vinyl-container.expanded .spine-text {
             position: relative;
             z-index: 10;
             border: 1px solid #000000;
@@ -216,7 +219,8 @@
             justify-content: center;
         }
 
-        .vinyl-container:hover .vinyl-expanded {
+        .vinyl-container:hover .vinyl-expanded,
+        .vinyl-container.expanded .vinyl-expanded {
             opacity: 1;
             pointer-events: all;
         }
@@ -1230,12 +1234,22 @@
                 container.classList.remove('dragging');
             });
 
-            // Tap to add on mobile (check if screen width is mobile)
+            // Tap behavior on mobile (two-tap: first to expand, second to add)
             container.addEventListener('click', (e) => {
                 if (window.innerWidth <= 1024) {
-                    // On mobile, clicking adds to playlist
                     e.stopPropagation();
-                    addToPlaylist(index);
+
+                    if (container.classList.contains('expanded')) {
+                        // Second tap: add to playlist and close
+                        addToPlaylist(index);
+                        container.classList.remove('expanded');
+                    } else {
+                        // First tap: close any other expanded vinyls and expand this one
+                        document.querySelectorAll('.vinyl-container.expanded').forEach(v => {
+                            v.classList.remove('expanded');
+                        });
+                        container.classList.add('expanded');
+                    }
                 }
             });
 
@@ -2051,6 +2065,11 @@
                 if (!leftColumn.contains(e.target) && !rightColumn.contains(e.target)) {
                     mainContainer.classList.remove('expand-collection');
                     mainContainer.classList.remove('expand-playlist');
+
+                    // Also close any expanded vinyl records
+                    document.querySelectorAll('.vinyl-container.expanded').forEach(v => {
+                        v.classList.remove('expanded');
+                    });
                 }
             }
         });
