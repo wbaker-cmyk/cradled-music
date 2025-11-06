@@ -1235,20 +1235,24 @@
             });
 
             // Tap behavior on mobile (two-tap: first to expand, second to add)
+            let isProcessingClick = false;
             container.addEventListener('click', (e) => {
-                if (window.innerWidth <= 1024) {
+                if (window.innerWidth <= 1024 && !isProcessingClick) {
                     e.stopPropagation();
+                    isProcessingClick = true;
 
                     if (container.classList.contains('expanded')) {
-                        // Second tap: add to playlist and close
+                        // Second tap: add to playlist and close (no re-expansion)
                         addToPlaylist(index);
                         container.classList.remove('expanded');
+                        setTimeout(() => { isProcessingClick = false; }, 300);
                     } else {
                         // First tap: close any other expanded vinyls and expand this one
                         document.querySelectorAll('.vinyl-container.expanded').forEach(v => {
                             v.classList.remove('expanded');
                         });
                         container.classList.add('expanded');
+                        setTimeout(() => { isProcessingClick = false; }, 300);
                     }
                 }
             });
