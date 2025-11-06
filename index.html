@@ -885,9 +885,10 @@
 
             .submit-music-btn,
             .about-btn {
-                padding: 8px 12px;
-                font-size: 9px;
-                border-radius: 15px;
+                padding: 6px 10px;
+                font-size: 8px;
+                font-weight: 700;
+                border-radius: 12px;
             }
 
             /* Column headers smaller */
@@ -908,35 +909,13 @@
                 top: 0;
             }
 
-            /* Transform collection to horizontal carousel */
+            /* Keep vertical collection on mobile */
             .shelf {
-                display: flex;
-                flex-direction: row;
-                overflow-x: auto;
-                overflow-y: hidden;
                 padding: 10px;
-                gap: 15px;
-                -webkit-overflow-scrolling: touch;
-                scroll-snap-type: x mandatory;
             }
 
             .vinyl-container {
-                flex: 0 0 200px;
-                height: 280px;
-                width: 200px;
-                scroll-snap-align: center;
-                margin-bottom: 0;
-            }
-
-            .vinyl-container:hover {
-                height: 280px;
-                width: 200px;
-                margin-left: 0;
-            }
-
-            .vinyl-expanded {
-                width: 200px;
-                height: 280px;
+                margin-bottom: 5px;
             }
 
             /* Modals full width on mobile */
@@ -988,6 +967,18 @@
             .shelf::-webkit-scrollbar {
                 height: 4px;
             }
+
+            /* Show Community Posts button only on mobile */
+            #communityPostsBtn {
+                display: inline-block;
+            }
+        }
+
+        /* Hide Community Posts button on desktop */
+        @media (min-width: 1025px) {
+            #communityPostsBtn {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -997,8 +988,25 @@
     <div class="submit-button-container">
         <button class="about-btn" id="toggleVinylBtn">Vinyl: OFF</button>
         <button class="about-btn" id="toggleReactiveBtn">Reactive: OFF</button>
+        <button class="about-btn" id="communityPostsBtn">Community</button>
         <button class="about-btn" id="aboutBtn">About</button>
         <button class="submit-music-btn" id="submitMusicBtn">Submit Music</button>
+    </div>
+
+    <!-- Community Posts Modal (Mobile Only) -->
+    <div class="modal-overlay" id="communityModal">
+        <div class="modal-content">
+            <button class="modal-close" id="communityModalClose">&times;</button>
+            <h2 class="modal-header">Community Posts</h2>
+            <div class="chat-container" style="height: 60vh; border: none; padding: 0; box-shadow: none;">
+                <div class="chat-messages" id="modalChatMessages" style="flex: 1;"></div>
+                <div class="chat-input-area">
+                    <input type="text" class="chat-user-input" id="modalChatUserInput" placeholder="Your name...">
+                    <textarea class="chat-message-input" id="modalChatMessageInput" placeholder="Write a message..."></textarea>
+                    <button class="chat-send-btn" id="modalChatSendBtn">Post</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- About Modal -->
@@ -1196,67 +1204,12 @@
                 container.classList.remove('dragging');
             });
 
-            // Touch events for mobile drag-and-drop
-            let touchStartX, touchStartY;
-            let isDraggingTouch = false;
-            let touchClone = null;
-
-            container.addEventListener('touchstart', (e) => {
-                const touch = e.touches[0];
-                touchStartX = touch.clientX;
-                touchStartY = touch.clientY;
-                isDraggingTouch = false;
-            });
-
-            container.addEventListener('touchmove', (e) => {
-                if (!isDraggingTouch) {
-                    const touch = e.touches[0];
-                    const deltaX = Math.abs(touch.clientX - touchStartX);
-                    const deltaY = Math.abs(touch.clientY - touchStartY);
-
-                    // Only start drag if moved more than 10px
-                    if (deltaX > 10 || deltaY > 10) {
-                        isDraggingTouch = true;
-                        container.classList.add('dragging');
-
-                        // Create visual clone for dragging
-                        touchClone = container.cloneNode(true);
-                        touchClone.style.position = 'fixed';
-                        touchClone.style.opacity = '0.7';
-                        touchClone.style.pointerEvents = 'none';
-                        touchClone.style.zIndex = '10000';
-                        touchClone.style.width = container.offsetWidth + 'px';
-                        touchClone.style.height = container.offsetHeight + 'px';
-                        document.body.appendChild(touchClone);
-                    }
-                }
-
-                if (isDraggingTouch && touchClone) {
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    touchClone.style.left = (touch.clientX - container.offsetWidth / 2) + 'px';
-                    touchClone.style.top = (touch.clientY - container.offsetHeight / 2) + 'px';
-                }
-            });
-
-            container.addEventListener('touchend', (e) => {
-                if (isDraggingTouch) {
-                    e.preventDefault();
-                    const touch = e.changedTouches[0];
-                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-
-                    // Check if dropped on playlist
-                    if (dropTarget && (dropTarget.id === 'playlistDropZone' || dropTarget.closest('#playlistDropZone'))) {
-                        addToPlaylist(index);
-                    }
-
-                    // Clean up
-                    if (touchClone) {
-                        document.body.removeChild(touchClone);
-                        touchClone = null;
-                    }
-                    container.classList.remove('dragging');
-                    isDraggingTouch = false;
+            // Tap to add on mobile (check if screen width is mobile)
+            container.addEventListener('click', (e) => {
+                if (window.innerWidth <= 1024) {
+                    // On mobile, clicking adds to playlist
+                    e.stopPropagation();
+                    addToPlaylist(index);
                 }
             });
 
@@ -1701,6 +1654,76 @@
             }
         });
 
+        // Community Posts Modal functionality (Mobile)
+        const communityModal = document.getElementById('communityModal');
+        const communityPostsBtn = document.getElementById('communityPostsBtn');
+        const communityModalClose = document.getElementById('communityModalClose');
+        const modalChatMessages = document.getElementById('modalChatMessages');
+        const modalChatUserInput = document.getElementById('modalChatUserInput');
+        const modalChatMessageInput = document.getElementById('modalChatMessageInput');
+        const modalChatSendBtn = document.getElementById('modalChatSendBtn');
+
+        // Sync modal chat with desktop chat
+        function syncChatToModal() {
+            modalChatMessages.innerHTML = chatMessages.innerHTML;
+            modalChatUserInput.value = chatUserInput.value;
+            if (savedUsername) {
+                modalChatUserInput.classList.add('hidden');
+            }
+        }
+
+        communityPostsBtn.addEventListener('click', () => {
+            syncChatToModal();
+            communityModal.classList.add('active');
+        });
+
+        communityModalClose.addEventListener('click', () => {
+            communityModal.classList.remove('active');
+        });
+
+        communityModal.addEventListener('click', (e) => {
+            if (e.target === communityModal) {
+                communityModal.classList.remove('active');
+            }
+        });
+
+        // Modal chat send functionality (same as desktop)
+        modalChatSendBtn.addEventListener('click', () => {
+            const user = savedUsername || modalChatUserInput.value.trim() || 'Anonymous';
+            const text = modalChatMessageInput.value.trim();
+
+            if (!text) return;
+
+            if (!savedUsername) {
+                savedUsername = user;
+                chatUserInput.classList.add('hidden');
+                modalChatUserInput.classList.add('hidden');
+            }
+
+            const timestamp = new Date();
+            const message = {
+                user: user,
+                text: text,
+                timestamp: timestamp
+            };
+
+            messages.push(message);
+
+            if (isFirstMessage) {
+                const welcomeMessage = chatMessages.querySelector('.chat-message');
+                if (welcomeMessage) welcomeMessage.remove();
+                isFirstMessage = false;
+            }
+
+            const messageElement = createChatMessage(message.user, message.text, message.timestamp);
+            chatMessages.appendChild(messageElement);
+            modalChatMessages.appendChild(messageElement.cloneNode(true));
+
+            modalChatMessageInput.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            modalChatMessages.scrollTop = modalChatMessages.scrollHeight;
+        });
+
         // About Modal functionality
         const aboutModal = document.getElementById('aboutModal');
         const aboutBtn = document.getElementById('aboutBtn');
@@ -1709,6 +1732,7 @@
         aboutBtn.addEventListener('click', () => {
             // Close other modals first
             submitModal.classList.remove('active');
+            communityModal.classList.remove('active');
             aboutModal.classList.add('active');
         });
 
@@ -1731,6 +1755,7 @@
         submitMusicBtn.addEventListener('click', () => {
             // Close other modals first
             aboutModal.classList.remove('active');
+            communityModal.classList.remove('active');
             submitModal.classList.add('active');
         });
 
