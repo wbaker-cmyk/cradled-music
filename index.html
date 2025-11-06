@@ -861,6 +861,16 @@
                 gap: 15px;
                 padding-left: 10px;
                 padding-right: 10px;
+                transition: grid-template-columns 0.3s ease;
+            }
+
+            /* Collapsible column states */
+            .main-container.expand-collection {
+                grid-template-columns: 2.5fr 0.5fr;
+            }
+
+            .main-container.expand-playlist {
+                grid-template-columns: 0.5fr 2.5fr;
             }
 
             /* Adjust body padding for mobile */
@@ -1996,6 +2006,52 @@
                 toggleReactiveBtn.textContent = 'Reactive: OFF';
                 // Stop the reactive background and reset to white
                 stopReactiveBackground();
+            }
+        });
+
+        // Mobile column collapse functionality
+        const mainContainer = document.querySelector('.main-container');
+        const leftColumn = document.querySelector('.left-column');
+        const rightColumn = document.querySelector('.right-column');
+
+        // Click on collection column to expand it
+        leftColumn.addEventListener('click', (e) => {
+            if (window.innerWidth <= 1024) {
+                e.stopPropagation();
+                if (mainContainer.classList.contains('expand-collection')) {
+                    // If already expanded, collapse to normal
+                    mainContainer.classList.remove('expand-collection');
+                } else {
+                    // Expand collection, collapse playlist
+                    mainContainer.classList.remove('expand-playlist');
+                    mainContainer.classList.add('expand-collection');
+                }
+            }
+        });
+
+        // Click on playlist column to expand it
+        rightColumn.addEventListener('click', (e) => {
+            if (window.innerWidth <= 1024) {
+                e.stopPropagation();
+                if (mainContainer.classList.contains('expand-playlist')) {
+                    // If already expanded, collapse to normal
+                    mainContainer.classList.remove('expand-playlist');
+                } else {
+                    // Expand playlist, collapse collection
+                    mainContainer.classList.remove('expand-collection');
+                    mainContainer.classList.add('expand-playlist');
+                }
+            }
+        });
+
+        // Click anywhere else to reset to normal view
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 1024) {
+                // Check if click is outside both columns
+                if (!leftColumn.contains(e.target) && !rightColumn.contains(e.target)) {
+                    mainContainer.classList.remove('expand-collection');
+                    mainContainer.classList.remove('expand-playlist');
+                }
             }
         });
     </script>
