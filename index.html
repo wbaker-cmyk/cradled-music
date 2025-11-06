@@ -881,6 +881,9 @@
                 right: 10px;
                 gap: 5px;
                 flex-wrap: wrap;
+                justify-content: flex-end;
+                width: auto;
+                max-width: 60%;
             }
 
             .submit-music-btn,
@@ -891,6 +894,13 @@
                 border-radius: 12px;
             }
 
+            /* Force button order on mobile */
+            #communityPostsBtn { order: 1; }
+            #aboutBtn { order: 2; }
+            #submitMusicBtn { order: 3; }
+            #toggleVinylBtn { order: 4; }
+            #toggleReactiveBtn { order: 5; }
+
             /* Column headers smaller */
             .column-header {
                 font-size: 1em;
@@ -899,10 +909,16 @@
 
             /* Adjust columns for mobile */
             .left-column {
-                padding-top: 60px;
+                padding-top: 80px;
             }
 
-            .right-column,
+            .right-column {
+                position: relative;
+                height: auto;
+                top: 0;
+                padding-top: 80px;
+            }
+
             .playlist-container {
                 position: relative;
                 height: auto;
