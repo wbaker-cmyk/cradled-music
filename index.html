@@ -1245,14 +1245,14 @@
                         // Second tap: add to playlist and close (no re-expansion)
                         addToPlaylist(index);
                         container.classList.remove('expanded');
-                        setTimeout(() => { isProcessingClick = false; }, 300);
+                        setTimeout(() => { isProcessingClick = false; }, 600);
                     } else {
                         // First tap: close any other expanded vinyls and expand this one
                         document.querySelectorAll('.vinyl-container.expanded').forEach(v => {
                             v.classList.remove('expanded');
                         });
                         container.classList.add('expanded');
-                        setTimeout(() => { isProcessingClick = false; }, 300);
+                        setTimeout(() => { isProcessingClick = false; }, 600);
                     }
                 }
             });
