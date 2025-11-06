@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Helper scripts (keep local only)
+*.js
+*.sh
+*.txt
+
+# Keep only index.html for the site
