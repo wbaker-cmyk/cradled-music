@@ -859,22 +859,12 @@
                 display: none !important;
             }
 
-            /* Change to 2-column layout */
+            /* Change to 2-column layout with fixed ratio */
             .main-container {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1.3fr 1fr;
                 gap: 15px;
                 padding-left: 10px;
                 padding-right: 10px;
-                transition: grid-template-columns 0.3s ease;
-            }
-
-            /* Collapsible column states */
-            .main-container.expand-collection {
-                grid-template-columns: 2.5fr 0.5fr;
-            }
-
-            .main-container.expand-playlist {
-                grid-template-columns: 0.5fr 2.5fr;
             }
 
             /* Adjust body padding for mobile */
@@ -2033,54 +2023,18 @@
             }
         });
 
-        // Mobile column collapse functionality
-        const mainContainer = document.querySelector('.main-container');
-        const leftColumn = document.querySelector('.left-column');
-        const rightColumn = document.querySelector('.right-column');
-
-        // Click on collection column to expand it
-        leftColumn.addEventListener('click', (e) => {
-            if (window.innerWidth <= 1024) {
-                e.stopPropagation();
-                if (mainContainer.classList.contains('expand-collection')) {
-                    // If already expanded, collapse to normal
-                    mainContainer.classList.remove('expand-collection');
-                } else {
-                    // Expand collection, collapse playlist
-                    mainContainer.classList.remove('expand-playlist');
-                    mainContainer.classList.add('expand-collection');
-                }
-            }
-        });
-
-        // Click on playlist column to expand it
-        rightColumn.addEventListener('click', (e) => {
-            if (window.innerWidth <= 1024) {
-                e.stopPropagation();
-                if (mainContainer.classList.contains('expand-playlist')) {
-                    // If already expanded, collapse to normal
-                    mainContainer.classList.remove('expand-playlist');
-                } else {
-                    // Expand playlist, collapse collection
-                    mainContainer.classList.remove('expand-collection');
-                    mainContainer.classList.add('expand-playlist');
-                }
-            }
-        });
-
-        // Click anywhere else to reset to normal view
+        // Close expanded vinyl records when clicking outside them on mobile
         document.addEventListener('click', (e) => {
             if (window.innerWidth <= 1024) {
-                // Check if click is outside both columns
-                if (!leftColumn.contains(e.target) && !rightColumn.contains(e.target)) {
-                    mainContainer.classList.remove('expand-collection');
-                    mainContainer.classList.remove('expand-playlist');
+                // Check if click is on a vinyl container
+                const clickedVinyl = e.target.closest('.vinyl-container');
 
-                    // Also close any expanded vinyl records
-                    document.querySelectorAll('.vinyl-container.expanded').forEach(v => {
+                // Close all expanded vinyls except the one that was clicked
+                document.querySelectorAll('.vinyl-container.expanded').forEach(v => {
+                    if (v !== clickedVinyl) {
                         v.classList.remove('expanded');
-                    });
-                }
+                    }
+                });
             }
         });
     </script>
