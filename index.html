@@ -938,43 +938,14 @@
                 margin-bottom: 5px;
             }
 
-            /* Make expanded vinyls stay within column on mobile */
+            /* Make expanded vinyls square on mobile */
             .vinyl-container.expanded {
-                width: 100%;
-                height: auto;
-                min-height: 350px;
-            }
-
-            .vinyl-container.expanded .vinyl-expanded {
-                min-height: 320px;
-            }
-
-            /* Add to playlist button for mobile */
-            .mobile-add-button {
-                display: none;
-                position: absolute;
-                bottom: 15px;
-                left: 50%;
+                width: 90vw;
+                max-width: 400px;
+                height: 90vw;
+                max-height: 400px;
+                margin-left: 50%;
                 transform: translateX(-50%);
-                z-index: 20;
-                background: #000000;
-                color: #ffffff;
-                border: none;
-                padding: 10px 20px;
-                font-size: 12px;
-                font-weight: 700;
-                border-radius: 20px;
-                cursor: pointer;
-                white-space: nowrap;
-            }
-
-            .vinyl-container.expanded .mobile-add-button {
-                display: block;
-            }
-
-            /* Hide audio player on mobile expanded view */
-            .vinyl-container.expanded .play-section {
-                display: none;
             }
 
             /* Modals full width on mobile */
@@ -1246,20 +1217,9 @@
                 playSection.appendChild(noAudio);
             }
 
-            // Mobile add button
-            const mobileAddButton = document.createElement('button');
-            mobileAddButton.className = 'mobile-add-button';
-            mobileAddButton.textContent = 'Add to Playlist';
-            mobileAddButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                addToPlaylist(index);
-                container.classList.remove('expanded');
-            });
-
             spine.appendChild(spineText);
             expanded.appendChild(albumArt);
             expanded.appendChild(playSection);
-            expanded.appendChild(mobileAddButton);
             container.appendChild(spine);
             container.appendChild(expanded);
 
@@ -1274,20 +1234,22 @@
                 container.classList.remove('dragging');
             });
 
-            // Tap behavior on mobile - toggle expanded state
+            // Tap behavior on mobile (two-tap: first to expand, second to add)
             container.addEventListener('click', (e) => {
                 if (window.innerWidth <= 1024) {
                     e.stopPropagation();
 
-                    // Close any other expanded vinyls
-                    document.querySelectorAll('.vinyl-container.expanded').forEach(v => {
-                        if (v !== container) {
+                    if (container.classList.contains('expanded')) {
+                        // Second tap: add to playlist and close
+                        addToPlaylist(index);
+                        container.classList.remove('expanded');
+                    } else {
+                        // First tap: close any other expanded vinyls and expand this one
+                        document.querySelectorAll('.vinyl-container.expanded').forEach(v => {
                             v.classList.remove('expanded');
-                        }
-                    });
-
-                    // Toggle this vinyl's expanded state
-                    container.classList.toggle('expanded');
+                        });
+                        container.classList.add('expanded');
+                    }
                 }
             });
 
